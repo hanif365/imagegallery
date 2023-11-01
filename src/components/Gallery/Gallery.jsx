@@ -3,10 +3,12 @@ import { FaRegImage } from "react-icons/fa";
 import firebaseService from "../../firebase/firebaseService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { BarLoader } from "react-spinners";
 
 const Gallery = () => {
   const [images, setImages] = useState([]);
   const [checkedImages, setCheckedImages] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const showToast = (message, type = "info") => {
     toast[type](message, {
@@ -22,8 +24,11 @@ const Gallery = () => {
   };
 
   const handleAddImages = async (event) => {
+    setLoading(true);
     const addImages = event.target.files;
     const res = await firebaseService.imageUpload(addImages);
+    setLoading(false);
+
     if (res.success) {
       showToast(res.success, "success");
       handleGetImages();
@@ -36,7 +41,6 @@ const Gallery = () => {
   const handleGetImages = async () => {
     const res = await firebaseService.getImages();
     setImages(res);
-    console.log(res);
   };
 
   useEffect(() => {
@@ -54,7 +58,10 @@ const Gallery = () => {
   };
 
   const deleteSelectedImages = async () => {
+    setLoading(true);
     const res = await firebaseService.deleteImage(checkedImages);
+    setLoading(false);
+
     if (res.success) {
       showToast(res.success, "success");
       handleGetImages();
@@ -64,12 +71,20 @@ const Gallery = () => {
     }
   };
 
-  console.log(images);
-
   return (
     <section className="py-5 rounded-lg">
       <div className="flex justify-between py-2 relative">
-        {checkedImages.length > 0 ? (
+        {loading ? (
+          <div className="">
+            <BarLoader
+              color="#79BCF7"
+              loading={loading}
+              width={250}
+              height={20}
+              className="rounded"
+            />
+          </div>
+        ) : checkedImages.length > 0 ? (
           <div className="flex">
             <input
               type="checkbox"
@@ -98,7 +113,7 @@ const Gallery = () => {
         </div>
       </div>
       <hr className="mb-10 border-t-2 w-full" />
-      <div className=" grid grid-cols-5 gap-5">
+      <div className="grid grid-cols-5 gap-5">
         {images &&
           images.map((image, index) => {
             console.log("Our Image: ----------------: ", image);
@@ -135,7 +150,7 @@ const Gallery = () => {
             );
           })}
 
-        <div className="relative cursor-pointer border rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
+        <div className="relative cursor-pointer border-dashed border-2 border-gray-300 rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
           <label className="cursor-pointer w-auto h-52 flex flex-col items-center justify-center transition-opacity duration-300">
             <FaRegImage className="w-8 h-8 text-gray-500 group-hover:text-black my-5" />
             <span className="text-xl font-bold text-gray-500 group-hover:text-black ">
