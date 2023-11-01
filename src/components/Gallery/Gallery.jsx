@@ -25,6 +25,7 @@ const Gallery = () => {
 
   const handleAddImages = async (event) => {
     setLoading(true);
+    setCheckedImages([]);
     const addImages = event.target.files;
     const res = await firebaseService.imageUpload(addImages);
     setLoading(false);
@@ -126,6 +127,7 @@ const Gallery = () => {
               >
                 <input
                   type="checkbox"
+                  disabled={loading}
                   checked={checkedImages.includes(image)}
                   onChange={() => handleCheckboxChange(image)}
                   className={`absolute top-5 left-5 transform scale-150 cursor-pointer group-hover:opacity-100 ${
