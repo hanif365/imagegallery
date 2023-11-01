@@ -1,22 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegImage } from "react-icons/fa";
+import firebaseService from "../../firebase/firebaseService";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Gallery = () => {
   const [images, setImages] = useState([]);
   const [checkedImages, setCheckedImages] = useState([]);
 
-  const onSelectFile = (event) => {
-    const selectedFiles = event.target.files;
-    const selectedFilesArray = Array.from(selectedFiles);
-
-    const imagesArray = selectedFilesArray.map((file) => {
-      return URL.createObjectURL(file);
+  const showToast = (message, type = "info") => {
+    toast[type](message, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
     });
-
-    setImages((previousImages) => previousImages.concat(imagesArray));
-
-    event.target.value = "";
   };
+
+  const handleAddImages = async (event) => {
+    const addImages = event.target.files;
+    const res = await firebaseService.imageUpload(addImages);
+    if (res.success) {
+      showToast(res.success, "success");
+      handleGetImages();
+    } else if (res.error) {
+      showToast(res.error, "error");
+    }
+  };
+
+  // get Image from firebase
+  const handleGetImages = async () => {
+    const res = await firebaseService.getImages();
+    setImages(res);
+    console.log(res);
+  };
+
+  useEffect(() => {
+    handleGetImages();
+  }, []);
 
   const handleCheckboxChange = (image) => {
     const newCheckedImages = [...checkedImages];
@@ -28,20 +53,22 @@ const Gallery = () => {
     setCheckedImages(newCheckedImages);
   };
 
-  const deleteSelectedImages = () => {
-    const remainingImages = images.filter(
-      (image) => !checkedImages.includes(image)
-    );
-    checkedImages.forEach((image) => URL.revokeObjectURL(image));
-    setImages(remainingImages);
-    setCheckedImages([]);
+  const deleteSelectedImages = async () => {
+    const res = await firebaseService.deleteImage(checkedImages);
+    if (res.success) {
+      showToast(res.success, "success");
+      handleGetImages();
+      setCheckedImages([]);
+    } else if (res.error) {
+      showToast(res.error, "error");
+    }
   };
 
-  console.log(checkedImages.length);
+  console.log(images);
 
   return (
     <section className="py-5 rounded-lg">
-      <div className="flex justify-between py-2">
+      <div className="flex justify-between py-2 relative">
         {checkedImages.length > 0 ? (
           <div className="flex">
             <input
@@ -65,11 +92,16 @@ const Gallery = () => {
             Delete {checkedImages.length > 1 ? "files" : "file"}
           </button>
         ) : null}
+
+        <div className="absolute">
+          <ToastContainer />
+        </div>
       </div>
       <hr className="mb-10 border-t-2 w-full" />
       <div className=" grid grid-cols-5 gap-5">
         {images &&
           images.map((image, index) => {
+            console.log("Our Image: ----------------: ", image);
             return (
               <div
                 key={image}
@@ -86,8 +118,8 @@ const Gallery = () => {
                   } z-10`}
                 />
                 <img
-                  src={image}
-                  alt="upload"
+                  src={image.src}
+                  alt="image"
                   className={`border shadow-sm rounded-lg w-full h-full m-auto transition-opacity duration-300 ${
                     checkedImages.includes(image) ? "opacity-60" : ""
                   }`}
@@ -112,8 +144,9 @@ const Gallery = () => {
             <input
               type="file"
               name="images"
-              onChange={onSelectFile}
+              onChange={handleAddImages}
               multiple
+              required
               className="hidden"
             />
           </label>
