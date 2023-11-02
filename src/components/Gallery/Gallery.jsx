@@ -4,11 +4,13 @@ import firebaseService from "../../firebase/firebaseService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BarLoader } from "react-spinners";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const Gallery = () => {
   const [images, setImages] = useState([]);
   const [checkedImages, setCheckedImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [imageOrder, setImageOrder] = useState([]);
 
   const showToast = (message, type = "info") => {
     toast[type](message, {
@@ -38,10 +40,10 @@ const Gallery = () => {
     }
   };
 
-  // get Image from firebase
   const handleGetImages = async () => {
     const res = await firebaseService.getImages();
     setImages(res);
+    setImageOrder(res.map((_, index) => `${index}`));
   };
 
   useEffect(() => {
@@ -70,6 +72,21 @@ const Gallery = () => {
     } else if (res.error) {
       showToast(res.error, "error");
     }
+  };
+
+  const onDragEnd = (result) => {
+    if (
+      !result.destination ||
+      result.droppableId == result.destination.droppableId
+    ) {
+      return;
+    }
+
+    const newImageOrder = Array.from(imageOrder);
+    const [removed] = newImageOrder.splice(result.source.index, 1);
+    newImageOrder.splice(result.destination.index, 0, removed);
+
+    setImageOrder(newImageOrder);
   };
 
   return (
@@ -114,61 +131,86 @@ const Gallery = () => {
         </div>
       </div>
       <hr className="mb-10 border-t-2 w-full" />
-      <div className="grid grid-cols-5 gap-5">
-        {images &&
-          images.map((image, index) => {
-            console.log("Our Image: ----------------: ", image);
-            return (
-              <div
-                key={image}
-                className={`${
-                  index === 0 ? "col-span-2 row-span-2" : ""
-                } relative group`}
-              >
-                <input
-                  type="checkbox"
-                  disabled={loading}
-                  checked={checkedImages.includes(image)}
-                  onChange={() => handleCheckboxChange(image)}
-                  className={`absolute top-5 left-5 transform scale-150 cursor-pointer group-hover:opacity-100 ${
-                    checkedImages.includes(image) ? "opacity-100" : "opacity-0"
-                  } z-10`}
-                />
-                <img
-                  src={image.src}
-                  alt="image"
-                  className={`border shadow-sm rounded-lg w-full h-full m-auto transition-opacity duration-300 ${
-                    checkedImages.includes(image) ? "opacity-60" : ""
-                  }`}
-                />
-                <div
-                  className={`bg-black rounded-lg absolute top-0 left-0 w-full h-full transition-opacity duration-300 ${
-                    checkedImages.includes(image)
-                      ? "opacity-10"
-                      : "opacity-0 group-hover:opacity-40"
-                  }`}
-                ></div>
-              </div>
-            );
-          })}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="image-grid" direction="horizontal">
+          {(provided, snapshot) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              isDraggingOver={snapshot.isDraggingOver}
+              className="grid grid-cols-5 gap-5"
+            >
+              {imageOrder.map((imageIndex, index) => {
+                const image = images[imageIndex];
+                console.log(imageIndex, image);
+                return (
+                  <Draggable
+                    key={imageIndex}
+                    draggableId={imageIndex}
+                    index={index}
+                  >
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        isDragging={snapshot.isDragging}
+                        className={`${
+                          index === 0 ? "col-span-2 row-span-2" : ""
+                        } relative group`}
+                      >
+                        <input
+                          type="checkbox"
+                          disabled={loading}
+                          checked={checkedImages.includes(image)}
+                          onChange={() => handleCheckboxChange(image)}
+                          className={`absolute top-5 left-5 transform scale-150 cursor-pointer group-hover:opacity-100 ${
+                            checkedImages.includes(image)
+                              ? "opacity-100"
+                              : "opacity-0"
+                          } z-10`}
+                        />
+                        <img
+                          src={image.src}
+                          alt="image"
+                          className={`border shadow-sm rounded-lg w-full h-full m-auto transition-opacity duration-300 ${
+                            checkedImages.includes(image) ? "opacity-60" : ""
+                          }`}
+                        />
+                        <div
+                          className={`bg-black rounded-lg absolute top-0 left-0 w-full h-full transition-opacity duration-300 ${
+                            checkedImages.includes(image)
+                              ? "opacity-10"
+                              : "opacity-0 group-hover:opacity-40"
+                          }`}
+                        ></div>
+                      </div>
+                    )}
+                  </Draggable>
+                );
+              })}
+              {provided.placeholder}
 
-        <div className="relative cursor-pointer border-dashed border-2 border-gray-300 rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
-          <label className="cursor-pointer w-auto h-52 flex flex-col items-center justify-center transition-opacity duration-300">
-            <FaRegImage className="w-8 h-8 text-gray-500 group-hover:text-black my-5" />
-            <span className="text-xl font-bold text-gray-500 group-hover:text-black ">
-              Add Images
-            </span>
-            <input
-              type="file"
-              name="images"
-              onChange={handleAddImages}
-              multiple
-              required
-              className="hidden"
-            />
-          </label>
-        </div>
-      </div>
+              <div className="relative cursor-pointer border-dashed border-2 border-gray-300 rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
+                <label className="cursor-pointer w-auto h-52 flex flex-col items-center justify-center transition-opacity duration-300">
+                  <FaRegImage className="w-8 h-8 text-gray-500 group-hover:text-black my-5" />
+                  <span className="text-xl font-bold text-gray-500 group-hover:text-black ">
+                    Add Images
+                  </span>
+                  <input
+                    type="file"
+                    name="images"
+                    onChange={handleAddImages}
+                    multiple
+                    required
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </section>
   );
 };
