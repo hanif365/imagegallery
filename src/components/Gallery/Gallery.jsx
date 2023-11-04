@@ -13,7 +13,6 @@ const Gallery = () => {
   const [imageOrder, setImageOrder] = useState([]);
   const [showShadow, setShowShadow] = useState(true);
 
-
   // show notification using toast
   const showToast = (message, type = "info") => {
     toast[type](message, {
@@ -64,7 +63,6 @@ const Gallery = () => {
   setTimeout(() => {
     setShowShadow(false);
   }, 5000);
-
 
   const handleCheckboxChange = (image) => {
     // Create a new array to hold the checked images
@@ -213,7 +211,7 @@ const Gallery = () => {
                               src={image.src}
                               alt="image"
                               draggable={false}
-                              className={`border shadow-sm rounded-lg w-full h-full m-auto transition-opacity duration-300 ${
+                              className={`border shadow-sm rounded-lg min-h-[50px] lg:min-h-[220px] w-full h-full m-auto transition-opacity duration-300 ${
                                 checkedImages.includes(image)
                                   ? "opacity-60"
                                   : ""
