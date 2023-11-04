@@ -109,18 +109,18 @@ const Gallery = () => {
               checked={true}
               className="transform scale-150 self-center mr-5"
             />
-            <h4 className="text-2xl font-bold self-center">
+            <h4 className="text-sm lg:text-2xl font-bold self-center">
               {checkedImages.length}{" "}
               {checkedImages.length > 1 ? "files" : "file"} Selected
             </h4>
           </div>
         ) : (
-          <h4 className="text-2xl font-bold">Gallery</h4>
+          <h4 className="text-sm lg:text-2xl font-bold">Gallery</h4>
         )}
         {checkedImages.length ? (
           <button
             onClick={deleteSelectedImages}
-            className="text-lg text-red-500 font-semibold hover:underline"
+            className="text-sm lg:text-lg text-red-500 font-semibold hover:underline"
           >
             Delete {checkedImages.length > 1 ? "files" : "file"}
           </button>
@@ -164,7 +164,7 @@ const Gallery = () => {
                           disabled={loading}
                           checked={checkedImages.includes(image)}
                           onChange={() => handleCheckboxChange(image)}
-                          className={`absolute top-5 left-5 transform scale-150 cursor-pointer group-hover:opacity-100 ${
+                          className={`absolute top-1 left-1 lg:top-5 lg:left-5 transform scale-50 lg:scale-150 cursor-pointer group-hover:opacity-100 ${
                             checkedImages.includes(image)
                               ? "opacity-100"
                               : "opacity-0"
@@ -192,9 +192,9 @@ const Gallery = () => {
               {provided.placeholder}
 
               <div className="relative cursor-pointer border-dashed border-2 border-gray-300 rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
-                <label className="cursor-pointer w-auto h-52 flex flex-col items-center justify-center transition-opacity duration-300">
-                  <FaRegImage className="w-8 h-8 text-gray-500 group-hover:text-black my-5" />
-                  <span className="text-xl font-bold text-gray-500 group-hover:text-black ">
+                <label className="cursor-pointer w-auto lg:h-52 flex flex-col items-center justify-center transition-opacity duration-300">
+                  <FaRegImage className="lg:w-8 lg:h-8 mt-4 lg:mt-0 text-gray-500 group-hover:text-black my-2 lg:my-5" />
+                  <span className="text-sm lg:text-xl hidden lg:block font-bold text-gray-500 group-hover:text-black ">
                     Add Images
                   </span>
                   <input
