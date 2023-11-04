@@ -11,6 +11,11 @@ const Gallery = () => {
   const [checkedImages, setCheckedImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [imageOrder, setImageOrder] = useState([]);
+  const [showShadow, setShowShadow] = useState(true);
+
+  setTimeout(() => {
+    setShowShadow(false);
+  }, 10000);
 
   // show notification using toast
   const showToast = (message, type = "info") => {
@@ -26,7 +31,7 @@ const Gallery = () => {
     });
   };
 
-  // Add Images to firestore fuctionality
+  // Add Images to firestore functionality
   const handleAddImages = async (event) => {
     setLoading(true);
     setCheckedImages([]);
@@ -46,9 +51,11 @@ const Gallery = () => {
 
   // Get images from firestore
   const handleGetImages = async () => {
+    // setLoading(true);
     const res = await firebaseService.getImages();
     setImages(res);
     setImageOrder(res.map((_, index) => `${index}`));
+    // setLoading(false);
   };
 
   useEffect(() => {
@@ -84,7 +91,7 @@ const Gallery = () => {
     if (res.success) {
       showToast(res.success, "success");
 
-      // After  successful deletion, call "handleGetImages" function to get updated data
+      // After a successful deletion, call "handleGetImages" function to get updated data
       handleGetImages();
 
       // Clear the list of checked images since they are now deleted
@@ -98,7 +105,7 @@ const Gallery = () => {
     // Check if there is no valid destination or if the source and destination are the same
     if (
       !result.destination ||
-      result.droppableId == result.destination.droppableId
+      result.droppableId === result.destination.droppableId
     ) {
       return;
     }
@@ -120,7 +127,7 @@ const Gallery = () => {
     <section className="py-5 rounded-lg">
       <div className="flex justify-between mx-2 py-2 relative">
         {loading ? (
-          <div className="">
+          <div className="animate-pulse">
             <BarLoader
               color="#79BCF7"
               loading={loading}
@@ -166,7 +173,6 @@ const Gallery = () => {
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              isDraggingOver={snapshot.isDraggingOver}
               className="grid grid-cols-5 gap-5"
             >
               {imageOrder.map((imageIndex, index) => {
@@ -183,37 +189,61 @@ const Gallery = () => {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        isDragging={snapshot.isDragging}
                         className={`${
                           index === 0 ? "col-span-2 row-span-2" : ""
-                        } relative group`}
+                        } relative group ${loading ? "animate-pulse" : ""}`}
                       >
-                        <input
-                          type="checkbox"
-                          disabled={loading}
-                          checked={checkedImages.includes(image)}
-                          onChange={() => handleCheckboxChange(image)}
-                          className={`absolute top-1 left-1 lg:top-5 lg:left-5 transform scale-50 lg:scale-150 cursor-pointer group-hover:opacity-100 ${
-                            checkedImages.includes(image)
-                              ? "opacity-100"
-                              : "opacity-0"
-                          } z-10`}
-                        />
-                        <img
-                          src={image.src}
-                          alt="image"
-                          draggable={false}
-                          className={`border shadow-sm rounded-lg w-full h-full m-auto transition-opacity duration-300 ${
-                            checkedImages.includes(image) ? "opacity-60" : ""
-                          }`}
-                        />
-                        <div
-                          className={`bg-black rounded-lg absolute top-0 left-0 w-full h-full transition-opacity duration-300 ${
-                            checkedImages.includes(image)
-                              ? "opacity-10"
-                              : "opacity-0 group-hover:opacity-40"
-                          }`}
-                        ></div>
+                        {!showShadow && images.length > 0 ? (
+                          <>
+                            <input
+                              type="checkbox"
+                              disabled={loading}
+                              checked={checkedImages.includes(image)}
+                              onChange={() => handleCheckboxChange(image)}
+                              className={`absolute top-1 left-1 lg:top-5 lg:left-5 transform scale-50 lg:scale-150 cursor-pointer group-hover:opacity-100 ${
+                                checkedImages.includes(image)
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              } z-10`}
+                            />
+                            <img
+                              src={image.src}
+                              alt="image"
+                              draggable={false}
+                              className={`border shadow-sm rounded-lg w-full h-full m-auto transition-opacity duration-300 ${
+                                checkedImages.includes(image)
+                                  ? "opacity-60"
+                                  : ""
+                              }`}
+                            />
+                            <div
+                              className={`bg-black rounded-lg absolute top-0 left-0 w-full h-full transition-opacity duration-300 ${
+                                checkedImages.includes(image)
+                                  ? "opacity-10"
+                                  : "opacity-0 group-hover:opacity-40"
+                              }`}
+                            ></div>
+                          </>
+                        ) : (
+                          // show skeleton loading
+                          <div className="w-full h-full rounded-lg">
+                            <div className="animate-pulse">
+                              <div className="shadow rounded-md  w-full mx-auto">
+                                <div className="flex space-x-4">
+                                  <div className="flex-1">
+                                    <div
+                                      className={`${
+                                        index === 0
+                                          ? "h-32 lg:h-[27rem]"
+                                          : "h-14 lg:h-52"
+                                      } bg-slate-100 rounded`}
+                                    ></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </Draggable>
@@ -221,22 +251,51 @@ const Gallery = () => {
               })}
               {provided.placeholder}
 
-              <div className="relative cursor-pointer border-dashed border-2 border-gray-300 rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
-                <label className="cursor-pointer w-auto lg:h-52 flex flex-col items-center justify-center transition-opacity duration-300">
-                  <FaRegImage className="lg:w-8 lg:h-8 mt-4 lg:mt-0 text-gray-500 group-hover:text-black my-2 lg:my-5" />
-                  <span className="text-sm lg:text-xl hidden lg:block font-bold text-gray-500 group-hover:text-black ">
-                    Add Images
-                  </span>
-                  <input
-                    type="file"
-                    name="images"
-                    onChange={handleAddImages}
-                    multiple
-                    required
-                    className="hidden"
-                  />
-                </label>
-              </div>
+              {!showShadow && images.length > 0 ? (
+                <div className="relative cursor-pointer border-dashed border-2 border-gray-300 rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
+                  <label className="cursor-pointer w-auto lg:h-52 flex flex-col items-center justify-center transition-opacity duration-300">
+                    <FaRegImage className="lg:w-8 lg:h-8 mt-4 lg:mt-0 text-gray-500 group-hover:text-black my-2 lg:my-5" />
+                    <span className="text-sm lg:text-xl hidden lg:block font-bold text-gray-500 group-hover:text-black ">
+                      Add Images
+                    </span>
+                    <input
+                      type="file"
+                      name="images"
+                      onChange={handleAddImages}
+                      multiple
+                      required
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              ) : null}
+              {/* {!showShadow && images.length > 0 ? (
+                <div className="relative cursor-pointer border-dashed border-2 border-gray-300 rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
+                  <label className="cursor-pointer w-auto lg:h-52 flex flex-col items-center justify-center transition-opacity duration-300">
+                    <FaRegImage className="lg:w-8 lg:h-8 mt-4 lg:mt-0 text-gray-500 group-hover:text-black my-2 lg:my-5" />
+                    <span className="text-sm lg:text-xl hidden lg:block font-bold text-gray-500 group-hover:text-black ">
+                      Add Images
+                    </span>
+                    <input
+                      type="file"
+                      name="images"
+                      onChange={handleAddImages}
+                      multiple
+                      required
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              ) : (
+                <div className="relative border-gray-300 rounded-lg group bg-gray-100 animate-pulse">
+                  <label className="cursor-pointer w-auto lg:h-52 flex flex-col items-center justify-center">
+                    <FaRegImage className="lg:w-8 lg:h-8 mt-4 lg:mt-0 text-gray-300 group-hover:text-black my-2 lg:my-5" />
+                    <span className="text-sm lg:text-xl hidden lg:block font-bold text-gray-300 group-hover:text-black ">
+                      Add Images
+                    </span>
+                  </label>
+                </div>
+              )} */}
             </div>
           )}
         </Droppable>
