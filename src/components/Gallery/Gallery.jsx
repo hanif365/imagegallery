@@ -13,9 +13,6 @@ const Gallery = () => {
   const [imageOrder, setImageOrder] = useState([]);
   const [showShadow, setShowShadow] = useState(true);
 
-  setTimeout(() => {
-    setShowShadow(false);
-  }, 10000);
 
   // show notification using toast
   const showToast = (message, type = "info") => {
@@ -62,6 +59,12 @@ const Gallery = () => {
     // Fetch the initial set of images when the component mounts
     handleGetImages();
   }, []);
+
+  // used for show skeleton loader
+  setTimeout(() => {
+    setShowShadow(false);
+  }, 5000);
+
 
   const handleCheckboxChange = (image) => {
     // Create a new array to hold the checked images
@@ -269,33 +272,6 @@ const Gallery = () => {
                   </label>
                 </div>
               ) : null}
-              {/* {!showShadow && images.length > 0 ? (
-                <div className="relative cursor-pointer border-dashed border-2 border-gray-300 rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
-                  <label className="cursor-pointer w-auto lg:h-52 flex flex-col items-center justify-center transition-opacity duration-300">
-                    <FaRegImage className="lg:w-8 lg:h-8 mt-4 lg:mt-0 text-gray-500 group-hover:text-black my-2 lg:my-5" />
-                    <span className="text-sm lg:text-xl hidden lg:block font-bold text-gray-500 group-hover:text-black ">
-                      Add Images
-                    </span>
-                    <input
-                      type="file"
-                      name="images"
-                      onChange={handleAddImages}
-                      multiple
-                      required
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-              ) : (
-                <div className="relative border-gray-300 rounded-lg group bg-gray-100 animate-pulse">
-                  <label className="cursor-pointer w-auto lg:h-52 flex flex-col items-center justify-center">
-                    <FaRegImage className="lg:w-8 lg:h-8 mt-4 lg:mt-0 text-gray-300 group-hover:text-black my-2 lg:my-5" />
-                    <span className="text-sm lg:text-xl hidden lg:block font-bold text-gray-300 group-hover:text-black ">
-                      Add Images
-                    </span>
-                  </label>
-                </div>
-              )} */}
             </div>
           )}
         </Droppable>
