@@ -12,6 +12,7 @@ const Gallery = () => {
   const [loading, setLoading] = useState(false);
   const [imageOrder, setImageOrder] = useState([]);
 
+  // show notification using toast
   const showToast = (message, type = "info") => {
     toast[type](message, {
       position: "top-right",
@@ -25,6 +26,7 @@ const Gallery = () => {
     });
   };
 
+  // Add Images to firestore fuctionality
   const handleAddImages = async (event) => {
     setLoading(true);
     setCheckedImages([]);
@@ -34,12 +36,15 @@ const Gallery = () => {
 
     if (res.success) {
       showToast(res.success, "success");
+
+      // After add images call "handleGetImages" function to get updated data
       handleGetImages();
     } else if (res.error) {
       showToast(res.error, "error");
     }
   };
 
+  // Get images from firestore
   const handleGetImages = async () => {
     const res = await firebaseService.getImages();
     setImages(res);
@@ -47,27 +52,42 @@ const Gallery = () => {
   };
 
   useEffect(() => {
+    // Fetch the initial set of images when the component mounts
     handleGetImages();
   }, []);
 
   const handleCheckboxChange = (image) => {
+    // Create a new array to hold the checked images
     const newCheckedImages = [...checkedImages];
+
+    // If the image is already in the list of checked images, remove it
     if (newCheckedImages.includes(image)) {
       newCheckedImages.splice(newCheckedImages.indexOf(image), 1);
-    } else {
+    }
+
+    // If the image is not in the list, add it
+    else {
       newCheckedImages.push(image);
     }
+
+    // Update the state with the new list of checked images
     setCheckedImages(newCheckedImages);
   };
 
   const deleteSelectedImages = async () => {
     setLoading(true);
+
+    // Call the Firebase service to delete the selected images
     const res = await firebaseService.deleteImage(checkedImages);
     setLoading(false);
 
     if (res.success) {
       showToast(res.success, "success");
+
+      // After  successful deletion, call "handleGetImages" function to get updated data
       handleGetImages();
+
+      // Clear the list of checked images since they are now deleted
       setCheckedImages([]);
     } else if (res.error) {
       showToast(res.error, "error");
@@ -75,6 +95,7 @@ const Gallery = () => {
   };
 
   const onDragEnd = (result) => {
+    // Check if there is no valid destination or if the source and destination are the same
     if (
       !result.destination ||
       result.droppableId == result.destination.droppableId
@@ -82,10 +103,16 @@ const Gallery = () => {
       return;
     }
 
+    // Create a new array to represent the updated image order
     const newImageOrder = Array.from(imageOrder);
+
+    // Remove the dragged image from its original position
     const [removed] = newImageOrder.splice(result.source.index, 1);
+
+    // Insert the dragged image at its new position
     newImageOrder.splice(result.destination.index, 0, removed);
 
+    // Update the state with the new image order to reflect the reordering
     setImageOrder(newImageOrder);
   };
 
@@ -110,7 +137,7 @@ const Gallery = () => {
               className="transform scale-150 self-center mr-5"
             />
             <h4 className="text-sm lg:text-2xl font-bold self-center">
-              {checkedImages.length}{" "}
+              {checkedImages.length}
               {checkedImages.length > 1 ? "files" : "file"} Selected
             </h4>
           </div>
@@ -120,7 +147,9 @@ const Gallery = () => {
         {checkedImages.length ? (
           <button
             onClick={deleteSelectedImages}
-            className="text-sm lg:text-lg text-red-500 font-semibold hover:underline"
+            className={`text-sm lg:text-lg text-red-500 font-semibold hover:underline cursor-pointer ${
+              loading ? "hidden" : ""
+            }`}
           >
             Delete {checkedImages.length > 1 ? "files" : "file"}
           </button>
