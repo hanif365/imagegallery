@@ -118,7 +118,7 @@ const Gallery = () => {
 
   return (
     <section className="py-5 rounded-lg">
-      <div className="flex justify-between py-2 relative">
+      <div className="flex justify-between mx-2 py-2 relative">
         {loading ? (
           <div className="">
             <BarLoader
@@ -202,6 +202,7 @@ const Gallery = () => {
                         <img
                           src={image.src}
                           alt="image"
+                          draggable={false}
                           className={`border shadow-sm rounded-lg w-full h-full m-auto transition-opacity duration-300 ${
                             checkedImages.includes(image) ? "opacity-60" : ""
                           }`}

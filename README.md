@@ -48,6 +48,4 @@
       their image collections, settings, and other user-specific features.
 
 
-##    *************                                     **************   ##
 ##    *************            Happy Coding...          **************   ##
-##    *************                                     **************   ##
