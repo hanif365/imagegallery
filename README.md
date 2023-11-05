@@ -1,5 +1,4 @@
-
-![projectimage1](https://github.com/hanif365/imagegallery/assets/55603798/02859a06-7a40-436f-8570-ee87c7821fcc)
+![projectimage](https://github.com/hanif365/imagegallery/assets/55603798/c4c23fe7-5afd-4ae8-8d00-b5036172cd69)
 
 ## Project Name: Image Gallery
 
