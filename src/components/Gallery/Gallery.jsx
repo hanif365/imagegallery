@@ -32,13 +32,25 @@ const Gallery = () => {
     setLoading(true);
     setCheckedImages([]);
     const addImages = event.target.files;
+
+    // Check if all uploaded files are images or GIFs
+    const areAllImages = Array.from(addImages).every(
+      (file) => file.type.startsWith("image/") || file.type === "image/gif"
+    );
+
+    if (!areAllImages) {
+      setLoading(false);
+      showToast("Please upload only image or GIF files.", "error");
+      return;
+    }
+
     const res = await firebaseService.imageUpload(addImages);
     setLoading(false);
 
     if (res.success) {
       showToast(res.success, "success");
 
-      // After add images call "handleGetImages" function to get updated data
+      // After adding images, call "handleGetImages" function to get updated data
       handleGetImages();
     } else if (res.error) {
       showToast(res.error, "error");
