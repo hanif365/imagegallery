@@ -239,7 +239,7 @@ const Gallery = () => {
                           </>
                         ) : (
                           // show skeleton loading
-                          <div className="w-full h-full rounded-lg">
+                          <div className="w-full h-full rounded-lg cursor-wait">
                             <div className="animate-pulse">
                               <div className="shadow rounded-md  w-full mx-auto">
                                 <div className="flex space-x-4">
@@ -264,7 +264,7 @@ const Gallery = () => {
               })}
               {provided.placeholder}
 
-              {!showShadow && images.length > 0 ? (
+              {/* {!showShadow ? (
                 <div className="relative cursor-pointer border-dashed border-2 border-gray-300 rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
                   <label className="cursor-pointer w-auto lg:h-52 flex flex-col items-center justify-center transition-opacity duration-300">
                     <FaRegImage className="lg:w-8 lg:h-8 mt-4 lg:mt-0 text-gray-500 group-hover:text-black my-2 lg:my-5" />
@@ -281,7 +281,42 @@ const Gallery = () => {
                     />
                   </label>
                 </div>
-              ) : null}
+              ) : null} */}
+
+              {!showShadow ? (
+                <div className="relative border-dashed border-2 border-gray-300 rounded-lg group bg-gray-100 hover:bg-gray-200 transition-opacity duration-300">
+                  <label
+                    className={`w-auto lg:h-52 flex flex-col items-center justify-center transition-opacity duration-300 ${
+                      loading
+                        ? "animate-pulse cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                  >
+                    <FaRegImage className="lg:w-8 lg:h-8 mt-4 lg:mt-0 text-gray-500 group-hover:text-black my-2 lg:my-5" />
+                    <span className="text-sm lg:text-xl hidden lg:block font-bold text-gray-500 group-hover:text-black ">
+                      Add Images
+                    </span>
+                    <input
+                      type="file"
+                      name="images"
+                      onChange={handleAddImages}
+                      multiple
+                      required
+                      disabled={loading}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              ) : (
+                <div className="relative border-gray-300 rounded-lg group bg-gray-100 animate-pulse">
+                  <label className="cursor-wait w-auto lg:h-52 flex flex-col items-center justify-center">
+                    <FaRegImage className="lg:w-8 lg:h-8 mt-4 lg:mt-0 text-gray-300 my-2 lg:my-5" />
+                    <span className="text-sm lg:text-xl hidden lg:block font-bold text-gray-300">
+                      Add Images
+                    </span>
+                  </label>
+                </div>
+              )}
             </div>
           )}
         </Droppable>
