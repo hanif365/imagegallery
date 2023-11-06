@@ -15,7 +15,6 @@ class firebaseService {
   }
 
   imageUpload = async (images) => {
-    console.log("Images Details: ********: ", images);
     try {
       const imagesURL = [];
       if (images.length > 0) {
@@ -27,7 +26,6 @@ class firebaseService {
 
           imagesURL.push({ src: url });
         }
-        console.log("imagesURL: ******: ", imagesURL);
 
         const galleryDocRef = doc(db, "imagesgallery", "galleryDocument");
         const docSnapshot = await getDoc(galleryDocRef);
@@ -57,7 +55,6 @@ class firebaseService {
       const docSnapshot = await getDoc(galleryDocRef);
       const galleryData = docSnapshot.data() || {};
       const images = galleryData.images || [];
-      console.log(images);
 
       return images;
     } catch (err) {

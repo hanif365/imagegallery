@@ -190,7 +190,6 @@ const Gallery = () => {
             >
               {imageOrder.map((imageIndex, index) => {
                 const image = images[imageIndex];
-                console.log(imageIndex, image);
                 return (
                   <Draggable
                     key={imageIndex}
